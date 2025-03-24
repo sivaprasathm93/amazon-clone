@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.product-slider {
+  padding: 20px 0 40px 0;
+}
+
+.product-slider .swiper-button-next,
+.product-slider .swiper-button-prev {
+  color: #1a1a1a;
+  background: rgba(255, 255, 255, 0.9);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.product-slider .swiper-button-next:after,
+.product-slider .swiper-button-prev:after {
+  font-size: 20px;
+}
+
+.product-slider .swiper-pagination-bullet {
+  background: #1a1a1a;
+  opacity: 0.5;
+}
+
+.product-slider .swiper-pagination-bullet-active {
+  opacity: 1;
+  background: #1a1a1a;
+}
+
+.product-slider .swiper-button-disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
