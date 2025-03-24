@@ -39,17 +39,17 @@ This Amazon clone project is built using React, TypeScript, and Tailwind CSS for
    ```
 
 2. Navigate to the project directory:
-  ```sh
-  cd amazon-clone
-  ```
+   ```sh
+   cd amazon-clone
+   ```
 
 3. Install dependencies
-  ```sh
-  npm install
-  ```
+   ```sh
+   npm install
+   ```
 
 4. Start the development server
-  ```sh
-  yarn dev
-  ```
+   ```sh
+   yarn dev
+   ```
   
