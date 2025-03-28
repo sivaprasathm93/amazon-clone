@@ -127,16 +127,19 @@ export function Cart() {
           </div>
         ))}
 
-<div className="lg:col-span-1">
+        <div className="lg:col-span-1">
           <div className="bg-white p-6 rounded-lg shadow-lg">
             <div className="flex items-center mb-6">
               <MapPin className="w-5 h-5 mr-2 text-gray-600" />
               <h2 className="text-xl font-semibold">Shipping Address</h2>
             </div>
-            
+
             <div className="space-y-4">
               <div>
-                <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="fullName"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Full Name
                 </label>
                 <input
@@ -151,7 +154,10 @@ export function Cart() {
               </div>
 
               <div>
-                <label htmlFor="streetAddress" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="streetAddress"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Street Address
                 </label>
                 <input
@@ -167,7 +173,10 @@ export function Cart() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="city"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     City
                   </label>
                   <input
@@ -181,7 +190,10 @@ export function Cart() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="state"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     State
                   </label>
                   <input
@@ -198,7 +210,10 @@ export function Cart() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="zipCode"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     ZIP Code
                   </label>
                   <input
@@ -212,7 +227,10 @@ export function Cart() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="country"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Country
                   </label>
                   <input
@@ -226,31 +244,31 @@ export function Cart() {
                   />
                 </div>
               </div>
-              </div>
+            </div>
           </div>
-        <div className="mt-8 p-4 bg-gray-100 rounded-lg shadow-sm">
-          <div className="text-2xl font-bold text-gray-800">
-            Total: ₹ {cartTotal.toLocaleString("en-IN")}
+          <div className="mt-8 p-4 bg-gray-100 rounded-lg shadow-sm">
+            <div className="text-2xl font-bold text-gray-800">
+              Total: ₹ {cartTotal.toLocaleString("en-IN")}
+            </div>
+            <button
+              onClick={onCheckout}
+              disabled={isProcessing}
+              className={`mt-4 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-6 rounded-lg w-full flex items-center justify-center transition-colors duration-200 ${
+                isProcessing ? "opacity-75 cursor-not-allowed" : ""
+              }`}
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Proceed to Checkout"
+              )}
+            </button>
           </div>
-          <button
-            onClick={onCheckout}
-            disabled={isProcessing}
-            className={`mt-4 bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-6 rounded-lg w-full flex items-center justify-center transition-colors duration-200 ${
-              isProcessing ? "opacity-75 cursor-not-allowed" : ""
-            }`}
-          >
-            {isProcessing ? (
-              <>
-                <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              "Proceed to Checkout"
-            )}
-          </button>
         </div>
       </div>
-    </div>
     </div>
   );
 }
