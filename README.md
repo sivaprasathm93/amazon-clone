@@ -116,21 +116,6 @@ This repo's lockfile is `yarn.lock`, so use yarn rather than npm — npm rewrite
 `yarn.lock` on install and the two lockfiles drift apart.
 
 Tests spin up an isolated in-memory MongoDB instance automatically — no real database or credentials required.
-
-## Known gaps
-
-- **Checkout is not wired up.** `handleCheckout` throws by design. Stripe removed
-  client-only Checkout (`redirectToCheckout` with inline `lineItems`), so a working
-  flow needs a backend endpoint that creates a Checkout Session with the secret key
-  and returns its `url` for the browser to follow.
-- **The storefront still reads `src/data/products.ts`.** The Products and Orders APIs
-  are live on the backend but no frontend code calls them yet; the cart uses local
-  numeric ids rather than MongoDB ObjectIds.
-
-## Notes on security
-
-An earlier commit in this repo included a real `server/.env` file. It is no longer tracked, but **it remains in the git history**, so the credentials it contained must be treated as compromised and rotated. If you fork this repo, always keep secrets in a local, git-ignored `.env` file — see `server/.env.example` for the required shape.
-
 ## License
 
 MIT
