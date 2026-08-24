@@ -1,4 +1,5 @@
-import { Calendar } from "lucide-react";
+import { useState } from "react";
+import { Calendar, Check } from "lucide-react";
 import { UpcomingProduct } from "../types";
 
 interface UpcomingProps {
@@ -6,6 +7,10 @@ interface UpcomingProps {
 }
 
 export function UpcomingProducts({ upcomingProductsDetails }: UpcomingProps) {
+  // Tracks which launches the visitor has asked to be notified about, so the
+  // confirmation can be shown in place instead of in a blocking alert().
+  const [notified, setNotified] = useState<string[]>([]);
+
   return (
     <div className="mt-16">
       <h2 className="text-3xl font-bold mb-8">Upcoming Launches</h2>
@@ -42,10 +47,25 @@ export function UpcomingProducts({ upcomingProductsDetails }: UpcomingProps) {
                 </div>
               </div>
               <button
-                className="mt-6 w-full bg-gray-800 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300"
-                onClick={() => alert("You will be notified when the product is available")}
+                className="mt-6 w-full font-bold py-3 px-4 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2 disabled:cursor-default bg-gray-800 hover:bg-gray-700 text-white disabled:bg-green-100 disabled:text-green-800"
+                onClick={() =>
+                  setNotified((current) => [...current, product.id])
+                }
+                disabled={notified.includes(product.id)}
+                aria-label={
+                  notified.includes(product.id)
+                    ? `You will be notified when ${product.name} launches`
+                    : `Notify me when ${product.name} launches`
+                }
               >
-                Notify Me
+                {notified.includes(product.id) ? (
+                  <>
+                    <Check className="w-5 h-5" aria-hidden="true" />
+                    We'll email you at launch
+                  </>
+                ) : (
+                  "Notify Me"
+                )}
               </button>
             </div>
           </div>

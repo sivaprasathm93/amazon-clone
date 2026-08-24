@@ -6,6 +6,8 @@
     "forceConsistentCasingInFileNames": true /* Ensure that casing is correct in imports. */,
     "strict": true /* Enable all strict type-checking options. */,
     "outDir": "./dist",
-    "rootDir": "./src"
-  }
+    "rootDir": "./src",
+    "skipLibCheck": true /* Skip type checking of declaration files (e.g. in node_modules). */
+  },
+  "exclude": ["node_modules", "dist", "src/__tests__"]
 }

@@ -1,27 +1,26 @@
+import { useNavigate } from 'react-router-dom';
 import { TrendingProduct } from '../types';
-import { TrendingUp, Users, ChevronRight } from 'lucide-react';
+import { TrendingUp, Users } from 'lucide-react';
 
 interface TrendingProductsProps {
   products: TrendingProduct[];
 }
 
 export function TrendingProducts({ products }: TrendingProductsProps) {
+  const navigate = useNavigate();
+
   return (
     <div className="mb-16">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <TrendingUp className="w-8 h-8 text-red-500" />
-          <h2 className="text-3xl font-bold">Trending Now</h2>
-        </div>
-        <button className="text-gray-600 hover:text-gray-900 flex items-center gap-1">
-          View All <ChevronRight className="w-4 h-4" />
-        </button>
+      <div className="flex items-center gap-3 mb-8">
+        <TrendingUp className="w-8 h-8 text-red-500" />
+        <h2 className="text-3xl font-bold">Trending Now</h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {products.map((product) => (
           <div 
             key={product.id}
-            className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
+            onClick={() => navigate(`/product/${product.id}`)}
+            className="cursor-pointer bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
           >
             <div className="relative">
               <img 
@@ -48,8 +47,15 @@ export function TrendingProducts({ products }: TrendingProductsProps) {
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-2xl font-bold">₹ {product.price.toLocaleString('en-IN')}</span>
-                <button className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors duration-300">
-                  View Details
+                <button 
+                  className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-4 py-2 rounded-lg transition-colors duration-300"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(`/product/${product.id}`);
+                  }}
+                  aria-label={`View details for ${product.name}`}
+                >
+                  View details
                 </button>
               </div>
             </div>

@@ -1,6 +1,6 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+/* v4 discovers sources automatically; index.html and src/ are covered. */
 
 .product-slider {
   padding: 20px 0 40px 0;

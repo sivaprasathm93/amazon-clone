@@ -1,5 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
-import { loadStripe } from "@stripe/stripe-js";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { Product } from "../types";
 
 interface CartItem extends Product {
@@ -10,19 +9,40 @@ interface CartContextType {
   cart: CartItem[];
   addToCart: (product: Product) => void;
   updateCart: (product: Product) => void;
-  removeFromCart: (productId: number) => void;
+  setQuantity: (productId: number | string, quantity: number) => void;
+  removeFromCart: (productId: number | string) => void;
   cartTotal: number;
   handleCheckout: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const stripePromise = loadStripe(
-  "pk_test_51O9PqyKVdOPbKxGKOBPKNsYnNqiHDZANkXlZnC9oZPWQu1OgDGBKHaYZGfHzQwXjNTqZaOPvvVjXddYNdkiHEHYf00UpWXUzMN"
-);
+const STORAGE_KEY = "cart";
+
+function readStoredCart(): CartItem[] {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const parsed = stored ? JSON.parse(stored) : null;
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    // Corrupt or unavailable storage should not take the whole app down.
+    return [];
+  }
+}
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  // The cart used to live only in memory, so a refresh or a shared link threw
+  // away everything the visitor had added.
+  const [cart, setCart] = useState<CartItem[]>(readStoredCart);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+    } catch {
+      // Ignore quota / private-mode failures: losing persistence is better
+      // than breaking the cart.
+    }
+  }, [cart]);
 
   const addToCart = (product: Product) => {
     setCart((currentCart) => {
@@ -41,18 +61,31 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const updateCart = (product: Product) => {
     setCart((currentCart) => {
       const existingItem = currentCart.find((item) => item.id === product.id);
-      if (existingItem) {
-        return currentCart.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity-1 }
-            : item
-        );
+      if (!existingItem) return currentCart;
+      if (existingItem.quantity <= 1) {
+        return currentCart.filter((item) => item.id !== product.id);
       }
-      return [...currentCart, { ...product, quantity: 0 }];
+      return currentCart.map((item) =>
+        item.id === product.id
+          ? { ...item, quantity: item.quantity - 1 }
+          : item
+      );
     });
   };
 
-  const removeFromCart = (productId: number) => {
+  const setQuantity = (productId: number | string, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCart(productId);
+      return;
+    }
+    setCart((currentCart) =>
+      currentCart.map((item) =>
+        item.id === productId ? { ...item, quantity } : item
+      )
+    );
+  };
+
+  const removeFromCart = (productId: number | string) => {
     setCart((currentCart) =>
       currentCart.filter((item) => item.id !== productId)
     );
@@ -64,41 +97,29 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 
   const handleCheckout = async () => {
-    try {
-      const stripe = await stripePromise;
-      if (!stripe) throw new Error("Stripe failed to initialize");
-
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      const result = await stripe.redirectToCheckout({
-        lineItems: cart.map((item) => ({
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: item.name,
-              images: [item.image],
-            },
-            unit_amount: Math.round(item.price * 100),
-          },
-          quantity: item.quantity,
-        })),
-        mode: "payment",
-        successUrl: window.location.origin + "/success",
-        cancelUrl: window.location.origin + "/cart",
-      });
-
-      if (result.error) {
-        throw new Error(result.error.message);
-      }
-    } catch (error) {
-      console.error("Error in checkout:", error);
-      alert("Error in checkout:" + error);
-    }
+    // Stripe removed client-only Checkout: `redirectToCheckout` with inline
+    // `lineItems` no longer exists in stripe.js, and Stripe disabled the
+    // underlying API server-side. A Checkout Session must now be created on
+    // the server (with the secret key) and the browser sent to session.url.
+    //
+    // TODO: POST the cart to a backend endpoint that creates a Checkout
+    // Session and returns its url, then set window.location.href to it.
+    throw new Error(
+      "Checkout requires a server-created Stripe session; not yet wired up."
+    );
   };
 
   return (
     <CartContext.Provider
-      value={{ cart, addToCart, updateCart, removeFromCart, cartTotal, handleCheckout }}
+      value={{
+        cart,
+        addToCart,
+        updateCart,
+        setQuantity,
+        removeFromCart,
+        cartTotal,
+        handleCheckout,
+      }}
     >
       {children}
     </CartContext.Provider>

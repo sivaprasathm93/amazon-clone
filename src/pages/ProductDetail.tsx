@@ -1,13 +1,30 @@
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { products } from "../data/products";
-import { ArrowLeft, Star } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
+import { StarRating } from "../components/StarRating";
 
 export function ProductDetail() {
   const { id } = useParams();
   const { addToCart } = useCart();
-  const product = products.find((p) => p.id === Number(id));
+  const product = products.find((p) => String(p.id) === id);
   const navigate = useNavigate();
+
+  // Adding to the cart only nudged a small badge in the corner, which is easy
+  // to miss; confirm it on the button the visitor just pressed.
+  const [justAdded, setJustAdded] = useState(false);
+  const addedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  useEffect(() => () => clearTimeout(addedTimer.current), []);
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    addToCart(product);
+    setJustAdded(true);
+    clearTimeout(addedTimer.current);
+    addedTimer.current = setTimeout(() => setJustAdded(false), 2000);
+  };
 
   if (!product) {
     return <div className="text-center py-10">Product not found</div>;
@@ -26,7 +43,7 @@ export function ProductDetail() {
     <div className="container mx-auto px-4 py-8">
       <button
         onClick={handleGoBack}
-        className="mb-4 flex items-center text-gray-600 hover:text-gray-800 focus:outline-none"
+        className="mb-4 flex items-center text-gray-600 hover:text-gray-800 focus:outline-hidden"
       >
         <ArrowLeft className="w-5 h-5 mr-1" />
         Back to Home
@@ -45,17 +62,7 @@ export function ProductDetail() {
           <h1 className="text-3xl font-bold text-gray-900 mb-4">
             {product.name}
           </h1>
-          <div className="flex items-center mt-2">
-            {[...Array(5)].map((_, index) => (
-              <Star
-                key={index}
-                className={`text-blue-500 ${
-                  index < product.rating.rate ? "" : "opacity-25"
-                } h-5 w-5`}
-              />
-            ))}
-            <span className="text-gray-600 ml-2">({product.rating.count})</span>
-          </div>
+          <StarRating rate={product.rating.rate} count={product.rating.count} />
           <p className="text-2xl text-gray-700 mb-4">
             ₹ {product.price.toLocaleString('en-IN')}
           </p>
@@ -85,11 +92,25 @@ export function ProductDetail() {
           )}
 
           <button
-            onClick={() => addToCart(product)}
-            className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-6 rounded-lg transition-colors duration-200 w-full mb-4"
+            onClick={handleAddToCart}
+            className={`font-bold py-3 px-6 rounded-lg transition-colors duration-200 w-full mb-4 flex items-center justify-center gap-2 ${
+              justAdded
+                ? "bg-green-600 text-white"
+                : "bg-yellow-500 hover:bg-yellow-600 text-black"
+            }`}
           >
-            Add to Cart
+            {justAdded ? (
+              <>
+                <Check className="w-5 h-5" aria-hidden="true" />
+                Added to cart
+              </>
+            ) : (
+              "Add to Cart"
+            )}
           </button>
+          <p role="status" aria-live="polite" className="sr-only">
+            {justAdded ? `${product.name} added to your cart` : ""}
+          </p>
           <button
             onClick={handleBuyNow}
             className="bg-yellow-500 hover:bg-orange-600 text-black font-bold py-3 px-6 rounded-lg transition-colors duration-200 w-full mb-4"

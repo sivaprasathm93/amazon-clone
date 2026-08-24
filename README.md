@@ -1,107 +1,136 @@
-# Amazon Clone
+# A2ZMandi
 
-This Amazon clone project is built using React, TypeScript, and Tailwind CSS for the frontend. It aims to replicate the core functionalities of the Amazon website including product listings, user authentication, and cart management.
 
-## Technologies Used
+A full-stack e-commerce web app: React/TypeScript storefront on the frontend, an Express/MongoDB REST API on the backend, with JWT authentication and an order pipeline.
 
-- **React**: A JavaScript library for building user interfaces.
-- **TypeScript**: A strongly typed programming language that builds on JavaScript.
-- **Tailwind CSS**: A utility-first CSS framework for rapidly building custom user interfaces.
-- **SCSS**: A CSS preprocessor that adds special features such as variables, nested rules, and mixins.
-- **JavaScript**: The programming language of the web.
-- **CSS**: Style sheet language used for describing the look and formatting of a document written in a markup language.
-- **HTML**: The standard markup language for documents designed to be displayed in a web browser.
+Live demo: https://amazon-clone-test.netlify.app/
 
-## Frontend Libraries
+> Originally built as a learning project modeled on Amazon's UI; the backend has since been extended with a real products API, order persistence, and route-level auth so it exercises the full stack end to end.
 
-- **React Router**: For routing in React applications.
-- **Redux**: For state management.
-- **Axios**: For making HTTP requests.
-- **Firebase**: For backend services including authentication and database.
-- **Formik**: For building forms in React.
-- **Yup**: For schema validation.
-- **Tailwind CSS**: For styling.
-- **React Icons**: For using icons in React.
+## Architecture
 
-## Backend
+```
+React + TypeScript (Vite)  --->  Express REST API  --->  MongoDB (Mongoose)
+        |                              |
+   React Router, fetch            JWT auth middleware
+```
 
-*   **JSON Data**: Product data is stored in local JSON files to simulate a backend.
-*   **Node.js & Express (Server)**: A Node.js server built with Express to handle user authentication and data fetching.
-*   **Mongoose**: An Object Data Modeling (ODM) library for MongoDB and Node.js.
-*   **MongoDB**: A NoSQL database used to store user data.
-*   **JSON Web Tokens (JWT)**: Used for secure authentication.
-*   **bcryptjs**: Used for password hashing.
-*   **dotenv**: Used to manage environment variables.
-*   **cors**: Used to enable Cross-Origin Resource Sharing.
+- **Frontend**: React 19, TypeScript 5.9, Vite 8, React Router 7, Tailwind CSS 4, SCSS, Swiper 14, Lucide + React Icons.
+- **Backend**: Node.js, Express 5, TypeScript 5.9, Mongoose 9/MongoDB, JWT-based auth, bcrypt password hashing.
+- **Testing**: Jest 30 + Supertest against an in-memory MongoDB instance (no real database needed to run tests).
+
+Tailwind is on v4, which is configured in CSS rather than JavaScript — there is no
+`tailwind.config.js`; the theme lives behind `@import "tailwindcss"` in `src/index.css`.
+
+### Backend layout
+
+```
+server/src
+├── models/       User, Product, Order schemas
+├── routes/       auth, products, orders
+├── middleware/   requireAuth (JWT bearer-token guard)
+├── __tests__/    Jest suites + in-memory Mongo setup
+├── seed.ts       sample product seeder
+└── server.ts     app wiring; only listens when run directly
+```
 
 ## Features
 
-*  **Product Listings**: Browse a variety of products with details like name, price, rating, and description.
-*  **Trending Products**: Highlights products that are currently popular.
-*  **Upcoming Products**: Showcases products that will be launched soon.
-*  **Product Detail Page**: View detailed information about a specific product.
-*  **Shopping Cart**: Add, remove, and update quantities of products in your cart.
-*  **Checkout Process**: A simulated checkout experience using Stripe.js.
-*  **User Authentication**: Sign-up and login functionality with JWT-based authentication.
-*  **Responsive Design**: The application is designed to work on a variety of devices.
+- Product listing, product detail pages, trending/upcoming sections
+- Cart and checkout flow (Stripe.js on the frontend)
+- User signup/login with hashed passwords and JWT sessions
+- **Products API** — products served from MongoDB rather than a static local file
+- **Orders API** — authenticated users can place orders; totals are computed server-side from live product prices, never trusted from the client
+- Route-level authorization middleware (`requireAuth`) protecting the orders endpoints
+- Responsive layout
 
+## API
 
-## Setup Instructions
+| Method | Route           | Auth required | Description                         |
+|--------|-----------------|:-------------:|-------------------------------------|
+| POST   | `/signup`       | No            | Create an account                   |
+| POST   | `/login`        | No            | Log in, returns a JWT               |
+| GET    | `/products`     | No            | List all products                   |
+| GET    | `/products/:id` | No            | Get a single product                |
+| POST   | `/orders`       | Yes           | Place an order for the current user |
+| GET    | `/orders`       | Yes           | List the current user's orders      |
+| GET    | `/health`       | No            | Health check                        |
 
-1. Clone the repository:
-   ```sh
-        git clone https://github.com/sivaprasathm93/amazon-clone.git
-   ```
+Protected routes expect an `Authorization: Bearer <token>` header.
 
-2. Navigate to the project directory:
-   ```sh
-        cd amazon-clone
-   ```
+## Getting Started
 
-3. Install dependencies
-   ```sh
-        npm install
-   ```
+### 1. Clone and install
 
-4. Install the dependencies for the server:
+```sh
+git clone https://github.com/sivaprasathm93/amazon-clone.git
+cd amazon-clone
+yarn install
+cd server && yarn install && cd ..
+```
 
-   ```sh
-        cd server
-        npm install # or yarn install
-        cd ..
-   ``` 
+### 2. Configure the backend
 
-5. Configure the environment variables:
+```sh
+cp server/.env.example server/.env
+```
 
-    *   Create a `.env` file in the `server` directory.
-    *   Add your MongoDB connection string and JWT secret:
+Then edit `server/.env` with your own MongoDB connection string and a JWT secret:
 
-    ```
-        MONGO_URI=mongodb+srv://<username>:<password>@<cluster-url>/<database-name>?retryWrites=truew=majority
-        JWT_SECRET=<your-jwt-secret>
-    ```
+```
+MONGO_URI=mongodb+srv://<username>:<password>@<cluster-url>/<database-name>?retryWrites=true&w=majority
+JWT_SECRET=<a-long-random-string>
+PORT=5000
+```
 
-## Running the Application
+`server/.env` is git-ignored and should never be committed.
 
-1.  Start the backend server:
+### 3. Seed sample product data (optional)
 
-    ```sh
-         cd server
-        yarn server
-    ```
+```sh
+cd server
+yarn seed
+```
 
-    This will start the server using `ts-node` which will automatically compile and run the TypeScript code. Alternatively, you can build the server and then start it:
+### 4. Run it
 
-    ```sh
-        yarn build
-        yarn start
-    ```
+```sh
+# terminal 1 - backend
+cd server
+yarn server
 
-2.  Start the frontend development server:
+# terminal 2 - frontend
+yarn dev
+```
 
-    ```sh
-        yarn dev
-    ```
+The frontend runs at `http://localhost:5173` and talks to the API at `http://localhost:5000`.
 
-    This will start the Vite development server, and the application will be accessible in your browser at `http://localhost:5173`.
+### 5. Run backend tests
 
+```sh
+cd server
+yarn test
+```
+
+This repo's lockfile is `yarn.lock`, so use yarn rather than npm — npm rewrites
+`yarn.lock` on install and the two lockfiles drift apart.
+
+Tests spin up an isolated in-memory MongoDB instance automatically — no real database or credentials required.
+
+## Known gaps
+
+- **Checkout is not wired up.** `handleCheckout` throws by design. Stripe removed
+  client-only Checkout (`redirectToCheckout` with inline `lineItems`), so a working
+  flow needs a backend endpoint that creates a Checkout Session with the secret key
+  and returns its `url` for the browser to follow.
+- **The storefront still reads `src/data/products.ts`.** The Products and Orders APIs
+  are live on the backend but no frontend code calls them yet; the cart uses local
+  numeric ids rather than MongoDB ObjectIds.
+
+## Notes on security
+
+An earlier commit in this repo included a real `server/.env` file. It is no longer tracked, but **it remains in the git history**, so the credentials it contained must be treated as compromised and rotated. If you fork this repo, always keep secrets in a local, git-ignored `.env` file — see `server/.env.example` for the required shape.
+
+## License
+
+MIT

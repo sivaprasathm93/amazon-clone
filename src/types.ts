@@ -1,5 +1,5 @@
 export interface Product {
-  id: number;
+  id: number | string;
   name: string;
   price: number;
   rating: {
@@ -7,8 +7,9 @@ export interface Product {
     count: number;
   };
   description: string;
-  description2: string;
+  description2?: string;
   image: string;
+  category?: string;
 }
 
 export interface UpcomingProduct {

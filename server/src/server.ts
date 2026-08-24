@@ -1,81 +1,39 @@
 import express from "express";
 import mongoose from "mongoose";
-import bodyParser from "body-parser";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import cors from "cors";
 
+import authRoutes from "./routes/auth";
+import productRoutes from "./routes/products";
+import orderRoutes from "./routes/orders";
+
 dotenv.config();
 
-const app = express();
+export const app = express();
 
 // Middleware
 app.use(cors());
-app.use(bodyParser.json());
-
-// MongoDB connection
-mongoose
-  .connect(process.env.MONGO_URI as string)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log(err));
-
-// User Schema
-interface IUser extends mongoose.Document {
-  name: string;
-  email: string;
-  password: string;
-}
-
-const UserSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
-});
-
-const User = mongoose.model<IUser>("User", UserSchema);
+app.use(express.json());
 
 // Routes
-app.post("/signup", async (req, res): Promise<any> => {
-  const { name, email, password } = req.body;
+// Auth routes are mounted at root ("/signup", "/login") to match the
+// existing frontend, which already calls those paths directly.
+app.use("/", authRoutes);
+app.use("/products", productRoutes);
+app.use("/orders", orderRoutes);
 
-  // Check if user exists
-  const userExists = await User.findOne({ email });
-  if (userExists) {
-    return res.status(400).json({ message: "User already exists" });
-  }
+app.get("/health", (_req, res) => res.status(200).json({ status: "ok" }));
 
-  // Hash password
-  const hashedPassword = await bcrypt.hash(password, 10);
+// Only connect to MongoDB and start listening when this file is run directly
+// (keeps `app` importable in tests without opening a real DB connection/port).
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
 
-  // Save user to DB
-  const newUser = new User({ name, email, password: hashedPassword });
-  await newUser.save();
-
-  res.status(201).json({ message: "User created successfully" });
-});
-
-app.post("/login", async (req, res): Promise<any> => {
-  const { email, password } = req.body;
-
-  // Find user
-  const user = await User.findOne({ email });
-  if (!user) {
-    return res.status(400).json({ message: "Invalid credentials" });
-  }
-
-  // Check password
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    return res.status(400).json({ message: "Invalid credentials" });
-  }
-
-  // Generate JWT
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET as string, {
-    expiresIn: "1h",
-  });
-
-  res.status(200).json({ message: "Login successful", token });
-});
-
-app.listen(5000, () => console.log("Server running on port 5000"));
+  mongoose
+    .connect(process.env.MONGO_URI as string)
+    .then(() => {
+      console.log("MongoDB connected");
+      app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    })
+    .catch((err) => console.error("MongoDB connection error:", err));
+}

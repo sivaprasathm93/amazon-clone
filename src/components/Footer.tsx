@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from 'lucide-react';
+import { Mail, Phone, MapPin } from 'lucide-react';
+import { FaFacebookF, FaXTwitter, FaInstagram, FaYoutube } from 'react-icons/fa6';
 
 export function Footer() {
   return (
@@ -18,12 +19,12 @@ export function Footer() {
             <h3 className="text-lg font-semibold mb-4 text-white">Quick Links</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-sm hover:text-white transition-colors">
+                <Link to="/home" className="text-sm hover:text-white transition-colors">
                   Home
                 </Link>
               </li>
               <li>
-                <a href="https://www.aboutamazon.in/" className="text-sm hover:text-white transition-colors">
+                <a href="#" className="text-sm hover:text-white transition-colors">
                   About
                 </a>
               </li>
@@ -54,7 +55,7 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <Mail className="w-4 h-4" />
-                <span>support@amazon.com</span>
+                <span>support@a2zmandi.example</span>
               </li>
               <li className="flex items-center gap-2 text-sm">
                 <MapPin className="w-4 h-4" />
@@ -67,23 +68,23 @@ export function Footer() {
             <h3 className="text-lg font-semibold mb-4 text-white">Follow Us</h3>
             <div className="flex space-x-4">
               <a href="#" className="hover:text-white transition-colors">
-                <Facebook className="w-5 h-5" />
+                <FaFacebookF className="w-5 h-5" />
               </a>
               <a href="#" className="hover:text-white transition-colors">
-                <Twitter className="w-5 h-5" />
+                <FaXTwitter className="w-5 h-5" />
               </a>
               <a href="#" className="hover:text-white transition-colors">
-                <Instagram className="w-5 h-5" />
+                <FaInstagram className="w-5 h-5" />
               </a>
               <a href="#" className="hover:text-white transition-colors">
-                <Youtube className="w-5 h-5" />
+                <FaYoutube className="w-5 h-5" />
               </a>
             </div>
           </div>
         </div>
 
         <div className="border-t border-gray-700 mt-8 pt-8 text-sm text-center">
-          <p>&copy; {new Date().getFullYear()} Amazon. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} A2ZMandi. All rights reserved.</p>
         </div>
       </div>
     </footer>

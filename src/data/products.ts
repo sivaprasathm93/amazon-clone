@@ -11,6 +11,7 @@ import mkWatch from "../assets/MichaelWatch.jpg";
 export const products = [
   {
     id: 1,
+    category: "Mobiles",
     name: "Apple iPhone 16e",
     price: 59999,
     rating: { rate: 4.5, count: 120 },
@@ -25,6 +26,7 @@ export const products = [
   },
   {
     id: 2,
+    category: "Electronics",
     name: "PlayStation 5",
     price: 48000,
     rating: { rate: 4.1, count: 3000 },
@@ -38,6 +40,7 @@ export const products = [
   },
   {
     id: 3,
+    category: "Electronics",
     name: "DJI Mini 4 Pro Drone",
     price: 104000,
     rating: { rate: 3.5, count: 15 },
@@ -51,6 +54,7 @@ export const products = [
   },
   {
     id: 4,
+    category: "Electronics",
     name: "Mac M4 Mini",
     price: 59000,
     rating: { rate: 4.8, count: 110 },
@@ -64,6 +68,7 @@ export const products = [
   },
   {
     id: 5,
+    category: "Mobiles",
     name: "Samsung Galaxy S25",
     price: 141000,
     rating: { rate: 5, count: 105 },
@@ -77,6 +82,7 @@ export const products = [
   },
   {
     id: 6,
+    category: "Home Appliances",
     name: "LG Front Load Washing Machine",
     price: 38900,
     rating: { rate: 3.5, count: 165 },
@@ -90,6 +96,7 @@ export const products = [
   },
   {
     id: 7,
+    category: "Beauty",
     name: "Ruby organics Foundation",
     price: 1399,
     rating: { rate: 4.5, count: 164 },

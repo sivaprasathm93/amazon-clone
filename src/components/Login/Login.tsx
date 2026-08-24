@@ -1,8 +1,10 @@
 import { useState, memo, useCallback } from "react";
 import { User, Mail, Lock } from "lucide-react";
-import AmazonLogo from "../../assets/logo.png";
+import BrandLogo from "../../assets/logo.png";
 import "./Login.scss";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { API_URL } from "../../lib/api";
+import { useAuth } from "../../context/auth-context";
 
 interface FormValues {
   email?: string;
@@ -23,6 +25,13 @@ function LoginPage() {
   const [popupMessage, setPopupMessage] = useState("");
 
   const navigate = useNavigate();
+  const location = useLocation();
+  const { isAuthenticated, login } = useAuth();
+
+  // Where the guard bounced them from, so login returns them there.
+  const from =
+    (location.state as { from?: { pathname: string } } | null)?.from?.pathname ??
+    "/home";
 
   const handleChange = useCallback(
     (e: { target: { name: string; value: string } }) => {
@@ -49,7 +58,7 @@ function LoginPage() {
 
       try {
         const response = await fetch(
-          `http://localhost:5000/${isSignUp ? "signup" : "login"}`,
+          `${API_URL}/${isSignUp ? "signup" : "login"}`,
           {
             method: "POST",
             headers: {
@@ -64,19 +73,28 @@ function LoginPage() {
           throw new Error(data.message || "Something went wrong");
         }
 
-        setPopupMessage(isSignUp ? "Sign Up Successful!" : "Login Successful!");
+        // Signup returns no token, so only a login actually starts a session.
+        if (data.token && formData.email) {
+          login(data.token, {
+            email: formData.email,
+            name: formData.name || formData.email.split("@")[0],
+          });
+        }
+
+        setPopupMessage(
+          isSignUp ? "Sign Up Successful! Please log in." : "Login Successful!"
+        );
         setPopupVisible(true);
+
         setTimeout(() => {
           setPopupVisible(false);
-          if (!isSignUp) {
-            navigate("/home");
+          if (isSignUp) {
+            setIsSignUp(false);
+          } else {
+            navigate(from, { replace: true });
           }
-        }, 3000);
-
-        if (!isSignUp) {
-          navigate("/home");
-        }
-      } catch (error: any) {
+        }, 1500);
+      } catch (error: unknown) {
         const errorMessage =
           error instanceof Error ? error.message : "An unknown error occurred";
         setPopupMessage(errorMessage);
@@ -86,7 +104,7 @@ function LoginPage() {
         }, 3000);
       }
     },
-    [formData, isSignUp, navigate]
+    [formData, isSignUp, navigate, login, from]
   );
 
   const toggleForm = useCallback(() => {
@@ -99,11 +117,15 @@ function LoginPage() {
     });
   }, []);
 
+  if (isAuthenticated) {
+    return <Navigate to={from} replace />;
+  }
+
   return (
     <div className="auth-container">
       <div className="auth-form">
         <Link to="/home">
-          <img src={AmazonLogo} alt="Amazon Logo" className="auth-logo" />
+          <img src={BrandLogo} alt="A2ZMandi Logo" className="auth-logo" />
         </Link>
         <h2 className="auth-title">{isSignUp ? "Sign Up" : "Login"}</h2>
         <form onSubmit={handleSubmit}>

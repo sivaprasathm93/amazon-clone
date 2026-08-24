@@ -20,7 +20,7 @@ export function PrimeBanner() {
               Stream Exclusive Content
             </h2>
             <p className="text-xl text-gray-200 mb-6">
-              Watch the latest movies, TV shows, and award-winning Amazon
+              Watch the latest movies, TV shows, and award-winning A2ZMandi
               Originals
             </p>
             <div className="flex items-center gap-4 mb-8">
